@@ -1,8 +1,9 @@
 #include <iostream>
 #include "matrix.h"
 using namespace std;
-int main(){
-    matrix<int> a(2,5);
-    a.SetMij(1,2,3);
-    a.Print("a");
+int main() {
+    matrix<double> a(4, 4);
+    cin >> a;
+    matrix<double> c = a.makeM();
+    cout << c;
 }

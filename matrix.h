@@ -1,58 +1,46 @@
 #if !defined(MATRIX)
 #define MATRIX
 #include <iostream>
-using namespace std;
+
 template <typename dataType>
 class matrix
 {
 private:
-    dataType **arr; // матрица
+    dataType** arr; // матрица
     int row;        // количество строк
     int col;        // количество столбцов
 
 public:
-    // конструкторы
     matrix()
     {
         col = row = 0;
-        arr = nullptr; // необязательно
+        arr = nullptr;
     }
-
-    // конструктор с двумя параметрами
     matrix(int _m, int _n)
     {
         row = _m;
         col = _n;
 
-        // Выделить память для матрицы
-        // Выделить пам'ять для массива указателей
-        arr = (dataType **)new dataType *[row]; // количество строк, количество указателей
+        arr = new dataType * [row];
 
-        // Выделить память для каждого указателя
         for (int i = 0; i < row; i++)
-            arr[i] = (dataType *)new dataType[col];
+            arr[i] = (dataType*)new dataType[col];
 
-        // заполнить массив arr нулями
         for (int i = 0; i < row; i++)
             for (int j = 0; j < col; j++)
                 arr[i][j] = 0;
     }
 
-    // Конструктор копирования - обязательный
-    matrix(const matrix &_M)
+    matrix(const matrix& _M)
     {
-        // Создается новый объект для которого виделяется память
-        // Копирование данных *this <= _M
         row = _M.row;
         col = _M.col;
 
-        // Выделить память для arr
-        arr = (dataType **)new dataType *[row]; // количество строк, количество указателей
+        arr = new dataType * [row];
 
         for (int i = 0; i < row; i++)
-            arr[i] = (dataType *)new dataType[col];
+            arr[i] = (dataType*)new dataType[col];
 
-        // заполнить значениями
         for (int i = 0; i < row; i++)
             for (int j = 0; j < col; j++)
                 arr[i][j] = _M.arr[i][j];
@@ -75,22 +63,73 @@ public:
         arr[i][j] = value;
     }
 
-    // метод, выводящий матрицу
-    void Print(const char *ObjName)
+    friend std::istream& operator>>(std::istream& istr, matrix& ma)
     {
-        cout << "Object: " << ObjName << endl;
-        for (int i = 0; i < row; i++)
-        {
-            for (int j = 0; j < col; j++)
-                cout << arr[i][j] << "\t";
-            cout << endl;
-        }
-        cout << "---------------------" << endl
-             << endl;
+        for (int i = 0; i < ma.row; i++)
+            for (int j = 0; j < ma.col; j++)
+                istr >> ma.arr[i][j];
+        return (istr);
     }
 
-    // оператор копирования - обязательный
-    matrix operator=(const matrix &_M)
+    friend std::ostream& operator<<(std::ostream& ostr, matrix<dataType>& ma)
+    {
+        ostr << "---------------------" << std::endl;
+        for (int i = 0; i < ma.row; i++)
+        {
+            for (int j = 0; j < ma.col; j++)
+                ostr << ma.arr[i][j] << "\t";
+            ostr << std::endl;
+        }
+        ostr << "---------------------" << std::endl
+            << std::endl;
+        return (ostr);
+    }
+    matrix operator*(const matrix& ma)
+    {
+        if (col != ma.row)
+        {
+            std::cout << "Умножение невозможно!";
+            return matrix();
+        }
+        matrix c(row, ma.col);
+        for (int i = 0; i < row; i++)
+        {
+            c.arr[i] = new dataType[ma.col];
+            for (int j = 0; j < ma.col; j++)
+            {
+                c.arr[i][j] = 0;
+                for (int k = 0; k < col; k++)
+                    c.arr[i][j] += arr[i][k] * ma.arr[k][j];
+            }
+        }
+        return c;
+    }
+    matrix makeM()
+    {
+        if (col != row)
+        {
+            std::cout << "ERROR!";
+            return matrix();
+        }
+        matrix<double> y(col, 1);
+        y.arr[0][0] = 1.;
+
+        matrix<double> rez(col, col + 1);
+        for (size_t i = 1; i < col + 1; i++)
+        {
+            matrix<double> y1 = *this * y;
+            for (size_t j = 0; j < row; j++)
+            {
+                rez.arr[j][i] = y1.arr[j][0];
+            }
+            y = y1;
+            
+        }
+        rez.arr[0][0] = 1;
+        return rez;
+    }
+
+    matrix operator=(const matrix& _M)
     {
         if (col > 0)
         {
@@ -109,9 +148,9 @@ public:
         col = _M.col;
 
         // Выделить память для arr опять
-        arr = (dataType **)new dataType *[row]; // количество строк, количество указателей
+        arr = (dataType**)new dataType * [row]; // количество строк, количество указателей
         for (int i = 0; i < row; i++)
-            arr[i] = (dataType *)new dataType[col];
+            arr[i] = (dataType*)new dataType[col];
 
         // заполнить значениями
         for (int i = 0; i < row; i++)
