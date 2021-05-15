@@ -187,8 +187,8 @@ public:
         x.arr[0][row] = -1;
         for(int i = 0; i <= col/2; i++){
             double temp = x.arr[0][i];
-            x.arr[0][i] = -x.arr[0][row-i];
-            x.arr[0][row-i] = -temp;
+            x.arr[0][i] = -x.arr[0][row-i] * 10000;
+            x.arr[0][row-i] = -temp * 10000;
         }
         return x;
     }
